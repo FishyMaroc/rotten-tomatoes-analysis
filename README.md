@@ -1,2 +1,6 @@
-# rotten-tomatoes-analysis
-A Python and SQL project scraping Rotten Tomatoes to analyze the score gap between critics and audiences for Netflix titles
+# 🍅 Rotten Tomatoes Analysis
+This is a Python and SQL project that pulls the latest Netflix movies from Rotten Tomatoes.
+
+## Files:
+- `main.py`: The robot that grabs the data and analyzes it.
+- `movies.csv`: The actual list of movies found.
