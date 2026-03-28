@@ -2,35 +2,45 @@ import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-# 1. Load the data we scraped in Step 2
+# --- SECTION 1: DATABASE ---
+# I'm loading the movie data I scraped into a Pandas "table"
 df = pd.read_csv("movies.csv")
 
-# 2. Connect to a SQL database (it will create this file automatically)
+# This creates a SQL database file so the data is stored more officially
 connection = sqlite3.connect("movie_data.db")
-
-# 3. Move the data into a SQL table called 'rt_ratings'
 df.to_sql("rt_ratings", connection, if_exists="replace", index=False)
-
-print("SQL Database 'movie_data.db' created and populated!")
+print("✅ SQL Database created!")
 connection.close()
 
-# Load the data
-df = pd.read_csv('movies.csv')
 
-# Clean the scores (remove % and make them numbers)
-df['Critic_Score'] = pd.to_numeric(df['Critic_Score'].str.replace('%', ''), errors='coerce')
+# --- SECTION 2: THE GRAPH ---
+# 1. Cleaning the scores so they are numbers I can actually graph
+df['Critic_Score'] = pd.to_numeric(df['Critic_Score'], errors='coerce').fillna(0)
 
-# Sort by top 10 movies
+# 2. Sorting to find the Top 10 movies
 top_10 = df.sort_values(by='Critic_Score', ascending=False).head(10)
 
-# Create the Chart
-plt.figure(figsize=(10, 6))
-plt.barh(top_10['Title'], top_10['Critic_Score'], color='tomato')
-plt.xlabel('Critic Score (%)')
-plt.title('Top 10 Netflix Movies on Rotten Tomatoes')
-plt.gca().invert_yaxis() # Put the #1 movie at the top
+# 3. Setting up the style. I chose 'dark_background' because it looks modern.
+plt.style.use('dark_background') 
+fig, ax = plt.subplots(figsize=(10, 6))
 
-# Save the picture!
-plt.savefig('movie_chart.png')
-print("🎨 Chart saved as movie_chart.png!")
+# 4. Drawing the bars using a nice red color (Rotten Tomatoes red!)
+bars = ax.barh(top_10['Title'], top_10['Critic_Score'], color='#fa320a')
+
+# 5. Adding the actual percentage text at the end of each bar
+# This makes it so people don't have to guess the score.
+for bar in bars:
+    width = bar.get_width()
+    ax.text(width + 1, bar.get_y() + bar.get_height()/2, f'{int(width)}%', va='center', fontweight='bold')
+
+# 6. Making the chart look "clean" by removing the extra border lines
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.invert_yaxis() # This puts the #1 movie at the top
+
+# 7. Final Touches: Title and saving the high-quality image
+ax.set_title('🏆 Top 10 Netflix Movies (By Critic Score)', fontsize=14, fontweight='bold', pad=15)
+plt.tight_layout()
+plt.savefig('movie_chart.png', dpi=300) # dpi=300 makes it look very sharp
+
+print("🎨 Your advanced chart is saved!")
